@@ -13,6 +13,6 @@ bincode = "1.3.3"
 blake2 = "0.9.1"
 futures-lite = "1.11.3"
 hmac-sha256 = "0.1.7"
-hypercore = "0.11.0"
+hypercore = { git = "https://github.com/datrs/hypercore", branch="master"}
 serde = { version = "1.0.126", features = ["derive"] }
 sled = "0.34.6"
