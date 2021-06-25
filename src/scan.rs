@@ -49,7 +49,7 @@ pub async fn scan(
     let media_files = HashMap::new();
     let paths_to_hashes = db.open_tree(b"p").unwrap();
     let hashes_to_paths = db.open_tree(b"h").unwrap();
-    let mut feed = hypercore::open("./feed.db").unwrap();
+    let mut feed = hypercore::open("./feed.db").await.unwrap();
     loop {
         match entries.next().await {
             Some(Ok(entry)) => match process_entry(entry).await {
@@ -59,7 +59,7 @@ pub async fn scan(
                     match media_file.file_path.clone().into_os_string().into_string() {
                         Ok(s) => {
                             let encoded = bincode::serialize(&media_file).unwrap();
-                            feed.append(encoded);
+                            feed.append(&encoded).await.unwrap();
                             hashes_to_paths
                                 .insert(media_file.blake2b, s.as_str())
                                 .unwrap();
