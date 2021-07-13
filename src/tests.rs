@@ -1,6 +1,8 @@
 #[cfg(test)]
 use futures_lite::future;
 use crate::scan::scan;
+use crate::scan::PATHS;
+use crate::scan::HASHES;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
@@ -10,8 +12,8 @@ fn it_works() {
     let scan_result: Result<HashMap<[u8; 32], PathBuf>, std::io::Error> =
         future::block_on(async { scan("./test-media", &db).await });
     assert_eq!(scan_result.unwrap().len(), 0);
-    let paths_to_hashes = db.open_tree(b"p").unwrap();
-    let hashes_to_paths = db.open_tree(b"h").unwrap();
+    let paths_to_hashes = db.open_tree(PATHS).unwrap();
+    let hashes_to_paths = db.open_tree(HASHES).unwrap();
     for kv in paths_to_hashes.iter() {
         let (key, value) = kv.unwrap();
         println!(

@@ -32,8 +32,9 @@ pub async fn process_entry(entry: DirEntry) -> Result<Option<MediaFile>, std::io
             break;
         }
         hash.update(&buf[0..bytes_read]);
+        println!("updated hash");
     }
-    let blake2b = hash.finalize().as_slice().try_into().unwrap();
+    let blake2b = hash.finalize()[0..32].try_into().unwrap();
     Ok(Some(MediaFile {
         file_path,
         blake2b,
@@ -41,14 +42,18 @@ pub async fn process_entry(entry: DirEntry) -> Result<Option<MediaFile>, std::io
     }))
 }
 
+pub const PATHS: &[u8; 1] = b"p";
+pub const HASHES: &[u8; 1] = b"h";
+
 pub async fn scan(
     root: impl AsRef<Path>,
     db: &sled::Db,
 ) -> Result<HashMap<[u8; 32], PathBuf>, std::io::Error> {
+
     let mut entries = WalkDir::new(root);
     let media_files = HashMap::new();
-    let paths_to_hashes = db.open_tree(b"p").unwrap();
-    let hashes_to_paths = db.open_tree(b"h").unwrap();
+    let paths_to_hashes = db.open_tree(PATHS).unwrap();
+    let hashes_to_paths = db.open_tree(HASHES).unwrap();
     let mut feed = hypercore::open("./feed.db").await.unwrap();
     loop {
         match entries.next().await {
