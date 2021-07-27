@@ -1,11 +1,9 @@
 use async_std::{
     prelude::*,
     task,
-    net::{TcpListener, ToSocketAddrs, TcpStream},
+    net::{ToSocketAddrs, TcpStream},
 };
 use async_std_utp::{UtpListener, UtpSocket};
-
-use futures_lite::io::{AsyncRead, AsyncWrite};
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
