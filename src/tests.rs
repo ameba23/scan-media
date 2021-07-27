@@ -3,15 +3,15 @@ use futures_lite::future;
 use crate::scan::scan;
 use crate::scan::PATHS;
 use crate::scan::HASHES;
-use std::collections::HashMap;
-use std::path::PathBuf;
+use tempfile::TempDir;
 
 #[test]
 fn it_works() {
     let db = sled::open("./db").expect("open");
-    let scan_result: Result<HashMap<[u8; 32], PathBuf>, std::io::Error> =
-        future::block_on(async { scan("./test-media", &db).await });
-    assert_eq!(scan_result.unwrap().len(), 0);
+    let storage = TempDir::new().unwrap();
+    let scan_result: Result<u32, std::io::Error> =
+        future::block_on(async { scan("./test-media", &db, storage).await });
+    assert_eq!(scan_result.unwrap(), 1);
     let paths_to_hashes = db.open_tree(PATHS).unwrap();
     let hashes_to_paths = db.open_tree(HASHES).unwrap();
     for kv in paths_to_hashes.iter() {

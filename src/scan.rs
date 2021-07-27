@@ -3,7 +3,6 @@ use async_walkdir::WalkDir;
 use futures_lite::io::AsyncReadExt;
 use futures_lite::stream::StreamExt;
 use blake2::{Blake2b, Digest};
-use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::convert::TryInto;
 use serde::{Serialize, Deserialize};
@@ -48,23 +47,24 @@ pub const HASHES: &[u8; 1] = b"h";
 pub async fn scan(
     root: impl AsRef<Path>,
     db: &sled::Db,
-) -> Result<HashMap<[u8; 32], PathBuf>, std::io::Error> {
+    storage: impl AsRef<Path>,
+) -> Result<u32, std::io::Error> {
 
+    let mut added_entries = 0;
     let mut entries = WalkDir::new(root);
-    let media_files = HashMap::new();
     let paths_to_hashes = db.open_tree(PATHS).unwrap();
     let hashes_to_paths = db.open_tree(HASHES).unwrap();
-    let mut feed = hypercore::open("./feed.db").await.unwrap();
+    let mut feed = hypercore::open(storage).await.unwrap();
     loop {
         match entries.next().await {
             Some(Ok(entry)) => match process_entry(entry).await {
                 Ok(Some(media_file)) => {
                     println!("{:x?}", media_file);
-                    // media_files.insert(media_file.sha256, &media_file.file_path);
                     match media_file.file_path.clone().into_os_string().into_string() {
                         Ok(s) => {
                             let encoded = bincode::serialize(&media_file).unwrap();
                             feed.append(&encoded).await.unwrap();
+                            added_entries += 1;
                             hashes_to_paths
                                 .insert(media_file.blake2b, s.as_str())
                                 .unwrap();
@@ -88,5 +88,5 @@ pub async fn scan(
             None => break,
         };
     }
-    Ok(media_files)
+    Ok(added_entries)
 }
