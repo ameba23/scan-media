@@ -16,3 +16,6 @@ hmac-sha256 = "0.1.7"
 hypercore = { git = "https://github.com/datrs/hypercore", branch="master"}
 serde = { version = "1.0.126", features = ["derive"] }
 sled = "0.34.6"
+
+[dev-dependencies]
+tempfile = "3.2.0"
