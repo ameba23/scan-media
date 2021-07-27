@@ -1,5 +1,6 @@
+
 //! Scan media
-pub mod scan;
+pub mod metadb;
 pub mod network;
 #[cfg(test)]
 mod tests;
