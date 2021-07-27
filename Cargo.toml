@@ -1,7 +1,11 @@
 [package]
 name = "scan-media"
+description = "The beginnings of a rust version of harddrive-party"
 version = "0.1.0"
 authors = ["ameba23 <ameba23@systemli.org>"]
+license = "GPL-3.0-or-later"
+keywords = ["p2p"]
+edition = "2018"
 
 [dependencies]
 async-fs = "1.5.0"
